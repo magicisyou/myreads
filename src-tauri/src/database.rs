@@ -55,6 +55,7 @@ pub fn add_book(db: &Connection, book: &Book) -> Result<Vec<Book>, rusqlite::Err
         ReadState::Read => "Read",
         ReadState::Reading => "Reading",
         ReadState::NotRead => "NotRead",
+        ReadState::PartialRead => "PartialRead",
     };
     let query =
         format!("INSERT INTO {TABLE_NAME} (book, author, read_state, starred) VALUES (@book, @author, @read_state, @starred)");
@@ -77,6 +78,7 @@ pub fn get_books(db: &Connection) -> Result<Vec<Book>, rusqlite::Error> {
         let read_state = match read_state.as_str() {
             "Read" => ReadState::Read,
             "Reading" => ReadState::Reading,
+            "PartialRead" => ReadState::PartialRead,
             _ => ReadState::NotRead,
         };
         let starred = row.get("starred")?;
@@ -96,52 +98,66 @@ pub fn delete_book(
     statement.execute(named_params! { "@book": book, "@author": author })?;
     get_books(db)
 }
-/*
-fn get_checked_value(
-    db: &Connection,
-    list_name: &str,
-    item_name: &str,
-) -> Result<bool, rusqlite::Error> {
-    let query = format!(
-        "SELECT checked FROM {TABLE_NAME} WHERE item = '{item_name}' AND list = '{list_name}'"
-    );
+
+fn get_starred_value(db: &Connection, book: &str, author: &str) -> Result<bool, rusqlite::Error> {
+    let query = format!("SELECT starred FROM {TABLE_NAME} WHERE book = @book AND author = @author");
     let mut statement = db.prepare(&query)?;
-    let mut rows = statement.query([])?;
+    let mut rows = statement.query(named_params! {"@book": book, "@author": author})?;
     if let Some(row) = rows.next()? {
-        let checked = row.get("checked")?;
-        return Ok(matches!(checked, 0));
+        let starred = row.get("starred")?;
+        return Ok(matches!(starred, 1));
     }
     Err(rusqlite::Error::QueryReturnedNoRows)
 }
 
-pub fn toggle_checked(
+pub fn toggle_starred(
     db: &Connection,
-    list_name: &str,
-    item_name: &str,
-) -> Result<Vec<Item>, rusqlite::Error> {
-    let checked = get_checked_value(db, list_name, item_name)?;
+    book: &str,
+    author: &str,
+) -> Result<Vec<Book>, rusqlite::Error> {
+    let starred = !get_starred_value(db, book, author)?;
+    let query = format!(
+        "UPDATE {TABLE_NAME} SET starred = @starred WHERE book = @book AND author = @author"
+    );
+    let mut statement = db.prepare(&query)?;
+    statement.execute(named_params! { "@starred": starred, "@book": book, "@author": author})?;
+    get_books(db)
+}
+
+fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState, rusqlite::Error> {
     let query =
-        format!("UPDATE {TABLE_NAME} SET checked = {checked} WHERE item = @item AND list = @list");
+        format!("SELECT read_state FROM {TABLE_NAME} WHERE book = @book AND author = @author");
     let mut statement = db.prepare(&query)?;
-    statement.execute(named_params! { "@item": item_name, "@list": list_name })?;
-    get_list(db, list_name)
-}
-
-pub fn get_list_names(db: &Connection) -> Result<Vec<String>, rusqlite::Error> {
-    let query = format!("SELECT DISTINCT list FROM {TABLE_NAME}");
-    let mut statement = db.prepare(&query)?;
-    let mut rows = statement.query([])?;
-    let mut list = vec![];
-    while let Some(row) = rows.next()? {
-        list.push(row.get("list")?);
+    let mut rows = statement.query(named_params! {"@book": book, "@author": author})?;
+    if let Some(row) = rows.next()? {
+        let read_state: String = row.get("read_state")?;
+        let read_state = match read_state.as_str() {
+            "Read" => ReadState::Read,
+            "Reading" => ReadState::Reading,
+            "PartialRead" => ReadState::PartialRead,
+            _ => ReadState::NotRead,
+        };
+        return Ok(read_state);
     }
-    Ok(list)
+    Err(rusqlite::Error::QueryReturnedNoRows)
 }
 
-pub fn delete_list(db: &Connection, list_name: &str) -> Result<Vec<String>, rusqlite::Error> {
-    let query = format!("DELETE FROM {TABLE_NAME} WHERE list = @list");
+pub fn change_read_state(
+    db: &Connection,
+    book: &str,
+    author: &str,
+) -> Result<Vec<Book>, rusqlite::Error> {
+    let read_state = match get_read_state(db, book, author)? {
+        ReadState::Read => "Reading",
+        ReadState::Reading => "NotRead",
+        ReadState::NotRead => "PartialRead",
+        ReadState::PartialRead => "Read",
+    };
+    let query = format!(
+        "UPDATE {TABLE_NAME} SET read_state = @read_state WHERE book = @book AND author = @author"
+    );
     let mut statement = db.prepare(&query)?;
-    statement.execute(named_params! {"@list": list_name})?;
-    get_list_names(db)
+    statement
+        .execute(named_params! { "@read_state": read_state, "@book": book, "@author": author})?;
+    get_books(db)
 }
-*/

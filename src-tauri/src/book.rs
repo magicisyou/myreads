@@ -13,6 +13,7 @@ pub enum ReadState {
     Read,
     NotRead,
     Reading,
+    PartialRead,
 }
 
 impl Book {

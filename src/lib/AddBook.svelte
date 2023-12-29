@@ -10,7 +10,7 @@
       let result = await invoke("add_book_to_db", {
         book: name,
         author: author,
-        readState: "Read",
+        readState: "NotRead",
       });
       if (result) {
         books_list.update((value) => result);
@@ -49,7 +49,8 @@
     width: 80px;
   }
   @media (prefers-color-scheme: dark) {
-    input, button {
+    input,
+    button {
       background-color: #111;
       color: #f2f2f2;
       border: solid #666 1px;

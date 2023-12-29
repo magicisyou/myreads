@@ -14,13 +14,29 @@
     });
     if (result) books_list.update((value) => (value = result));
   }
+
+  async function toggleStarred() {
+    let result = await invoke("change_starred", {
+      book: this.parentElement.children[0].innerText,
+      author: this.parentElement.children[1].innerText,
+    });
+    if (result) books_list.update((value) => (value = result));
+  }
+
+  async function changeReadState() {
+    let result = await invoke("change_read_state", {
+      book: this.parentElement.children[0].innerText,
+      author: this.parentElement.children[1].innerText,
+    });
+    if (result) books_list.update((value) => (value = result));
+  }
 </script>
 
 <div>
   <span class="book">{name}</span>
   <span class="author">{author}</span>
-  <span>{read_state}</span>
-  <button class="star">
+  <button class="read-state" on:click={changeReadState}>{read_state}</button>
+  <button class="star" on:click={toggleStarred}>
     <img src={starred ? "star-filled.svg" : "star.svg"} alt="star" />
   </button>
   <button class="delete" on:click={deleteBook}>
@@ -65,9 +81,16 @@
     bottom: 5px;
     right: 5px;
   }
-  button {
+  .star,
+  .delete {
     background-color: transparent;
     border: none;
     border-radius: 50%;
+  }
+  .read-state {
+    width: 100%;
+    background-color: #0003;
+    border: none;
+    color: gold;
   }
 </style>

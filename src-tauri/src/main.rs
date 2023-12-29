@@ -17,19 +17,18 @@ fn add_book_to_db(
     author: String,
     read_state: ReadState,
 ) -> Option<Vec<Book>> {
-        match app_handle.db(|db| database::add_book(db, &Book::from(book, author, read_state, false)))
+    if let Ok(books) =
+        app_handle.db(|db| database::add_book(db, &Book::from(book, author, read_state, false)))
     {
-        Ok(books) => return Some(books),
-        Err(e) => println!("{e}"),
+        return Some(books);
     }
     None
 }
 
 #[tauri::command]
 fn get_books(app_handle: AppHandle) -> Option<Vec<Book>> {
-    match app_handle.db(database::get_books) {
-        Ok(books) => return Some(books),
-        Err(e) => println!("{e}"),
+    if let Ok(books) = app_handle.db(database::get_books) {
+        return Some(books);
     }
     None
 }
@@ -37,6 +36,22 @@ fn get_books(app_handle: AppHandle) -> Option<Vec<Book>> {
 #[tauri::command]
 fn delete_book(app_handle: AppHandle, book: String, author: String) -> Option<Vec<Book>> {
     if let Ok(books) = app_handle.db(|db| database::delete_book(db, &book, &author)) {
+        return Some(books);
+    }
+    None
+}
+
+#[tauri::command]
+fn change_starred(app_handle: AppHandle, book: String, author: String) -> Option<Vec<Book>> {
+    if let Ok(books) = app_handle.db(|db| database::toggle_starred(db, &book, &author)) {
+        return Some(books);
+    }
+    None
+}
+
+#[tauri::command]
+fn change_read_state(app_handle: AppHandle, book: String, author: String) -> Option<Vec<Book>> {
+    if let Ok(books) = app_handle.db(|db| database::change_read_state(db, &book, &author)) {
         return Some(books);
     }
     None
@@ -58,7 +73,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             add_book_to_db,
             delete_book,
-            get_books
+            get_books,
+            change_starred,
+            change_read_state,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
