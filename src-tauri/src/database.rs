@@ -85,6 +85,7 @@ pub fn get_books(db: &Connection) -> Result<Vec<Book>, rusqlite::Error> {
         let starred = matches!(starred, 1);
         books.push(Book::from(book, author, read_state, starred));
     }
+    books.reverse();
     Ok(books)
 }
 

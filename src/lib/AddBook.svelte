@@ -12,7 +12,7 @@
         author: author,
       });
       if (result) {
-        books_list.update((value) => [...value, result]);
+        books_list.update((value) => [result, ...value]);
         name = "";
         author = "";
       }
