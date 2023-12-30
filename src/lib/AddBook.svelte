@@ -10,10 +10,9 @@
       let result = await invoke("add_book_to_db", {
         book: name,
         author: author,
-        readState: "NotRead",
       });
       if (result) {
-        books_list.update((value) => result);
+        books_list.update((value) => [...value, result]);
         name = "";
         author = "";
       }

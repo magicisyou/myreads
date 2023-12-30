@@ -12,7 +12,7 @@
       book: this.parentElement.children[0].innerText,
       author: this.parentElement.children[1].innerText,
     });
-    if (result) books_list.update((value) => (value = result));
+    if (result) books_list.set(result);
   }
 
   async function toggleStarred() {
@@ -20,7 +20,7 @@
       book: this.parentElement.children[0].innerText,
       author: this.parentElement.children[1].innerText,
     });
-    if (result) books_list.update((value) => (value = result));
+    if (result) books_list.set(result);
   }
 
   async function changeReadState() {
@@ -28,7 +28,7 @@
       book: this.parentElement.children[0].innerText,
       author: this.parentElement.children[1].innerText,
     });
-    if (result) books_list.update((value) => (value = result));
+    if (result) books_list.set(result);
   }
 </script>
 

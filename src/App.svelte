@@ -6,7 +6,7 @@
 
   async function get_books() {
     let result = await invoke("get_books");
-    if (result) books_list.update((value) => (value = result));
+    if (result) books_list.update((value) => value = result);
   }
   get_books();
 </script>

@@ -46,7 +46,7 @@ pub fn upgrade_database_if_needed(
     Ok(())
 }
 
-pub fn add_book(db: &Connection, book: &Book) -> Result<Vec<Book>, rusqlite::Error> {
+pub fn add_book(db: &Connection, book: &Book) -> Result<(), rusqlite::Error> {
     let starred = match book.starred {
         true => 1,
         false => 0,
@@ -63,7 +63,7 @@ pub fn add_book(db: &Connection, book: &Book) -> Result<Vec<Book>, rusqlite::Err
     statement.execute(
         named_params! {"@book": book.name, "@author": book.author, "@read_state": read_state, "@starred": starred },
     )?;
-    get_books(db)
+    Ok(())
 }
 
 pub fn get_books(db: &Connection) -> Result<Vec<Book>, rusqlite::Error> {

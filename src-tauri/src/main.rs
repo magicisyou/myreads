@@ -15,12 +15,12 @@ fn add_book_to_db(
     app_handle: AppHandle,
     book: String,
     author: String,
-    read_state: ReadState,
-) -> Option<Vec<Book>> {
-    if let Ok(books) =
-        app_handle.db(|db| database::add_book(db, &Book::from(book, author, read_state, false)))
+) -> Option<Book> {
+    let new_book = Book::from(book, author, ReadState::NotRead, false);
+    if let Ok(()) =
+        app_handle.db(|db| database::add_book(db, &new_book))
     {
-        return Some(books);
+        return Some(new_book);
     }
     None
 }
