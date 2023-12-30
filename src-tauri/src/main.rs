@@ -11,15 +11,11 @@ use state::{AppState, ServiceAccess};
 use tauri::{AppHandle, Manager, State};
 
 #[tauri::command]
-fn add_book_to_db(
-    app_handle: AppHandle,
-    book: String,
-    author: String,
-) -> Option<Book> {
+fn add_book_to_db(app_handle: AppHandle, book: String, author: String) -> Option<Book> {
+    let book = book.trim().to_string();
+    let author = author.trim().to_string();
     let new_book = Book::from(book, author, ReadState::NotRead, false);
-    if let Ok(()) =
-        app_handle.db(|db| database::add_book(db, &new_book))
-    {
+    if let Ok(()) = app_handle.db(|db| database::add_book(db, &new_book)) {
         return Some(new_book);
     }
     None
