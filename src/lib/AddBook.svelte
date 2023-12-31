@@ -38,14 +38,18 @@
   }
   button,
   input {
-    border: solid #aaa 1px;
+    border: solid #525c7c 1px;
+    border-radius: 5px;
     padding: 10px;
   }
   input {
     width: max(250px, 25vw);
+    background-color: #dddeef;
   }
   button {
     width: 80px;
+    background-color: #525c7c;
+    color: #f2f2f2;
   }
   @media (prefers-color-scheme: dark) {
     input,

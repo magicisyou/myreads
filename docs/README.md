@@ -6,6 +6,8 @@ Organize books into a reading list
 
 ![MyReads Logo](/src-tauri/icons/128x128.png)
 
-This is cross platform app to organize reading list built with tauri. The installer for Ubuntu, Windows and MacOs is awailable in the github Release.
+This is a cross platform app built with tauri to organize reading list. Download the app for Linux, Windows and MAcOs from [github releases](https://github.com/magicisyou/myreads/releases).
+
+### Screenshot
 
 ![MyReads Screenshot](/docs/screenshot.webp)

@@ -149,10 +149,10 @@ pub fn change_read_state(
     author: &str,
 ) -> Result<Vec<Book>, rusqlite::Error> {
     let read_state = match get_read_state(db, book, author)? {
-        ReadState::Read => "Reading",
-        ReadState::Reading => "NotRead",
-        ReadState::NotRead => "PartialRead",
+        ReadState::NotRead => "Reading",
+        ReadState::Reading => "PartialRead",
         ReadState::PartialRead => "Read",
+        ReadState::Read => "NotRead",
     };
     let query = format!(
         "UPDATE {TABLE_NAME} SET read_state = @read_state WHERE book = @book AND author = @author"

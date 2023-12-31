@@ -1,6 +1,6 @@
 [package]
 name = "myreads"
-version = "1.0.0"
+version = "1.1.0"
 description = "Organize reading list"
 authors = ["magicyou"]
 license = "MIT"

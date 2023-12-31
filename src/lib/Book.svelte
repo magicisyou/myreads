@@ -32,12 +32,12 @@
   }
 </script>
 
-<div>
+<div class={read_state}>
   <span class="book">{name}</span>
   <span class="author">{author}</span>
   <button class="read-state" on:click={changeReadState}>{read_state}</button>
-  <button class="star" on:click={toggleStarred}>
-    <img src={starred ? "star-filled.svg" : "star.svg"} alt="star" />
+  <button on:click={toggleStarred} class="star">
+    <img src={starred ? "/star-black.svg" : "star.svg"} alt="star" />
   </button>
   <button class="delete" on:click={deleteBook}>
     <img src="delete.svg" alt="delete" />
@@ -52,45 +52,66 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background-color: #213;
-    border: solid gold 2px;
+    background-color: #d3d6d8;
+    border: solid #435 2px;
     border-radius: 6px;
     height: 300px;
     width: 200px;
     padding: 10px;
-    color: gold;
-    &:hover {
-      background-color: #324;
-    }
+    color: #101;
+  }
+  div:hover {
+    outline: solid #234 1px;
   }
   .book,
   .author {
     height: 75px;
+    text-align: center;
   }
   .book {
     font-weight: bold;
-    text-align: center;
   }
   .star {
-    position: absolute;
     top: 5px;
-    right: 5px;
   }
   .delete {
-    position: absolute;
     bottom: 5px;
-    right: 5px;
   }
   .star,
   .delete {
     background-color: transparent;
     border: none;
     border-radius: 50%;
+    right: 5px;
+    position: absolute;
   }
   .read-state {
     width: 100%;
     background-color: #0003;
     border: none;
-    color: gold;
+    color: inherit;
+  }
+  .PartialRead {
+    background-color: #d3d6d8;
+  }
+  .Reading {
+    background-color: #546b96;
+    color: #f2f2f2;
+  }
+  .Read {
+    background-color: #b08d57;
+  }
+  .NotRead {
+    background-color: #b87333;
+    color: #f2f2f2;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    div {
+      border: solid #f2f2f2 2px;
+    }
+    div:hover {
+      outline: solid #f2f2f2 1px;
+    }
   }
 </style>
