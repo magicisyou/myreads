@@ -162,3 +162,28 @@ pub fn change_read_state(
         .execute(named_params! { "@read_state": read_state, "@book": book, "@author": author})?;
     get_books(db)
 }
+
+pub fn search(db: &Connection, keyword: &str) -> Result<Vec<Book>, rusqlite::Error> {
+    let keyword = format!("%{keyword}%");
+    let query =
+        format!("SELECT * FROM {TABLE_NAME} WHERE book LIKE @keyword OR author LIKE @keyword");
+    let mut statement = db.prepare(&query)?;
+    let mut rows = statement.query(named_params! {"@keyword": keyword})?;
+    let mut books = Vec::new();
+    while let Some(row) = rows.next()? {
+        let book: String = row.get("book")?;
+        let author: String = row.get("author")?;
+        let read_state: String = row.get("read_state")?;
+        let read_state = match read_state.as_str() {
+            "Read" => ReadState::Read,
+            "Reading" => ReadState::Reading,
+            "PartialRead" => ReadState::PartialRead,
+            _ => ReadState::NotRead,
+        };
+        let starred = row.get("starred")?;
+        let starred = matches!(starred, 1);
+        books.push(Book::from(book, author, read_state, starred));
+    }
+    books.reverse();
+    Ok(books)
+}

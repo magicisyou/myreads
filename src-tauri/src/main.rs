@@ -53,6 +53,14 @@ fn change_read_state(app_handle: AppHandle, book: String, author: String) -> Opt
     None
 }
 
+#[tauri::command]
+fn search_books(app_handle: AppHandle, keyword: String) -> Option<Vec<Book>> {
+    if let Ok(books) = app_handle.db(|db| database::search(db, &keyword)) {
+        return Some(books);
+    }
+    None
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState {
@@ -72,6 +80,7 @@ fn main() {
             get_books,
             change_starred,
             change_read_state,
+            search_books,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

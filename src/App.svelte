@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
   import Book from "./lib/Book.svelte";
-  import AddBook from "./lib/AddBook.svelte";
+  import TopBar from "./lib/TopBar.svelte";
   import { books_list } from "./lib/stores.ts";
 
   async function get_books() {
@@ -12,7 +12,7 @@
 </script>
 
 <div>
-  <AddBook />
+  <TopBar />
   {#each $books_list as book}
     <Book {...book} />
   {/each}

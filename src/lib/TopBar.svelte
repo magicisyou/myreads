@@ -4,6 +4,16 @@
 
   let name = "";
   let author = "";
+  let keyword = "";
+
+  async function search() {
+    if (search == "") {
+      let result = await invoke("get_books");
+      if (result) books_list.set(result);
+    }
+    let result = await invoke("search_books", { keyword: keyword });
+    if (result) books_list.set(result);
+  }
 
   async function add_book() {
     if (name != "" && author != "") {
@@ -11,8 +21,13 @@
         book: name,
         author: author,
       });
-      if (result) {
+      if (result && keyword == "") {
         books_list.update((value) => [result, ...value]);
+        name = "";
+        author = "";
+      } else if (result) {
+        let search_list = await invoke("search_books", { keyword: keyword });
+        if (search_list) books_list.set(search_list);
         name = "";
         author = "";
       }
@@ -20,21 +35,32 @@
   }
 </script>
 
-<form class="main" on:submit|preventDefault={add_book}>
-  <input type="text" bind:value={name} placeholder="book name" />
-  <input type="text" bind:value={author} placeholder="author name" />
-  <button type="submit">Add</button>
-</form>
+<div>
+  <form on:submit|preventDefault={add_book}>
+    <input type="text" bind:value={name} placeholder="book name" />
+    <input type="text" bind:value={author} placeholder="author name" />
+    <button type="submit">Add</button>
+  </form>
+  <input
+    type="text"
+    bind:value={keyword}
+    on:input={search}
+    placeholder="Search"
+  />
+</div>
 
 <style scoped>
-  .main {
-    width: 100%;
+  div,
+  form {
     display: flex;
-    padding: 10px;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 10px;
+  }
+  div {
+    width: 100%;
+    padding: 10px;
   }
   button,
   input {
