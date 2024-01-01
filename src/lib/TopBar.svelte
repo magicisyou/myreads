@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { books_list } from "./stores.ts";
+  import { books_list, search_keyword } from "./stores.ts";
   import { invoke } from "@tauri-apps/api/tauri";
 
   let name = "";
@@ -7,27 +7,31 @@
   let keyword = "";
 
   async function search() {
-    if (search == "") {
+    search_keyword.set(keyword);
+    if (keyword == "") {
       let result = await invoke("get_books");
       if (result) books_list.set(result);
+    } else {
+      let result = await invoke("search_books", { keyword: keyword });
+      if (result) books_list.set(result);
     }
-    let result = await invoke("search_books", { keyword: keyword });
-    if (result) books_list.set(result);
   }
 
   async function add_book() {
     if (name != "" && author != "") {
-      let result = await invoke("add_book_to_db", {
-        book: name,
-        author: author,
-      });
-      if (result && keyword == "") {
-        books_list.update((value) => [result, ...value]);
-        name = "";
-        author = "";
-      } else if (result) {
-        let search_list = await invoke("search_books", { keyword: keyword });
-        if (search_list) books_list.set(search_list);
+      if (
+        await invoke("add_book_to_db", {
+          book: name,
+          author: author,
+        })
+      ) {
+        if (keyword == "") {
+          let result = await invoke("get_books");
+          if (result) books_list.set(result);
+        } else {
+          let result = await invoke("search_books", { keyword: keyword });
+          if (result) books_list.set(result);
+        }
         name = "";
         author = "";
       }

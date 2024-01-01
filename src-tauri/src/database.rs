@@ -89,15 +89,11 @@ pub fn get_books(db: &Connection) -> Result<Vec<Book>, rusqlite::Error> {
     Ok(books)
 }
 
-pub fn delete_book(
-    db: &Connection,
-    book: &str,
-    author: &str,
-) -> Result<Vec<Book>, rusqlite::Error> {
+pub fn delete_book(db: &Connection, book: &str, author: &str) -> Result<(), rusqlite::Error> {
     let query = format!("DELETE FROM {TABLE_NAME} WHERE book = @book AND author = @author");
     let mut statement = db.prepare(&query)?;
     statement.execute(named_params! { "@book": book, "@author": author })?;
-    get_books(db)
+    Ok(())
 }
 
 fn get_starred_value(db: &Connection, book: &str, author: &str) -> Result<bool, rusqlite::Error> {
@@ -111,18 +107,14 @@ fn get_starred_value(db: &Connection, book: &str, author: &str) -> Result<bool, 
     Err(rusqlite::Error::QueryReturnedNoRows)
 }
 
-pub fn toggle_starred(
-    db: &Connection,
-    book: &str,
-    author: &str,
-) -> Result<Vec<Book>, rusqlite::Error> {
+pub fn toggle_starred(db: &Connection, book: &str, author: &str) -> Result<(), rusqlite::Error> {
     let starred = !get_starred_value(db, book, author)?;
     let query = format!(
         "UPDATE {TABLE_NAME} SET starred = @starred WHERE book = @book AND author = @author"
     );
     let mut statement = db.prepare(&query)?;
     statement.execute(named_params! { "@starred": starred, "@book": book, "@author": author})?;
-    get_books(db)
+    Ok(())
 }
 
 fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState, rusqlite::Error> {
@@ -143,11 +135,7 @@ fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState
     Err(rusqlite::Error::QueryReturnedNoRows)
 }
 
-pub fn change_read_state(
-    db: &Connection,
-    book: &str,
-    author: &str,
-) -> Result<Vec<Book>, rusqlite::Error> {
+pub fn change_read_state(db: &Connection, book: &str, author: &str) -> Result<(), rusqlite::Error> {
     let read_state = match get_read_state(db, book, author)? {
         ReadState::NotRead => "Reading",
         ReadState::Reading => "PartialRead",
@@ -160,7 +148,7 @@ pub fn change_read_state(
     let mut statement = db.prepare(&query)?;
     statement
         .execute(named_params! { "@read_state": read_state, "@book": book, "@author": author})?;
-    get_books(db)
+    Ok(())
 }
 
 pub fn search(db: &Connection, keyword: &str) -> Result<Vec<Book>, rusqlite::Error> {

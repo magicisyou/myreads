@@ -11,14 +11,14 @@ use state::{AppState, ServiceAccess};
 use tauri::{AppHandle, Manager, State};
 
 #[tauri::command]
-fn add_book_to_db(app_handle: AppHandle, book: String, author: String) -> Option<Book> {
+fn add_book_to_db(app_handle: AppHandle, book: String, author: String) -> bool {
     let book = book.trim().to_string();
     let author = author.trim().to_string();
     let new_book = Book::from(book, author, ReadState::NotRead, false);
     if let Ok(()) = app_handle.db(|db| database::add_book(db, &new_book)) {
-        return Some(new_book);
+        return true;
     }
-    None
+    false
 }
 
 #[tauri::command]
@@ -30,27 +30,27 @@ fn get_books(app_handle: AppHandle) -> Option<Vec<Book>> {
 }
 
 #[tauri::command]
-fn delete_book(app_handle: AppHandle, book: String, author: String) -> Option<Vec<Book>> {
-    if let Ok(books) = app_handle.db(|db| database::delete_book(db, &book, &author)) {
-        return Some(books);
+fn delete_book(app_handle: AppHandle, book: String, author: String) -> bool {
+    if let Ok(()) = app_handle.db(|db| database::delete_book(db, &book, &author)) {
+        return true;
     }
-    None
+    false
 }
 
 #[tauri::command]
-fn change_starred(app_handle: AppHandle, book: String, author: String) -> Option<Vec<Book>> {
-    if let Ok(books) = app_handle.db(|db| database::toggle_starred(db, &book, &author)) {
-        return Some(books);
+fn change_starred(app_handle: AppHandle, book: String, author: String) -> bool {
+    if let Ok(()) = app_handle.db(|db| database::toggle_starred(db, &book, &author)) {
+        return true;
     }
-    None
+    false
 }
 
 #[tauri::command]
-fn change_read_state(app_handle: AppHandle, book: String, author: String) -> Option<Vec<Book>> {
-    if let Ok(books) = app_handle.db(|db| database::change_read_state(db, &book, &author)) {
-        return Some(books);
+fn change_read_state(app_handle: AppHandle, book: String, author: String) -> bool {
+    if let Ok(()) = app_handle.db(|db| database::change_read_state(db, &book, &author)) {
+        return true;
     }
-    None
+    false
 }
 
 #[tauri::command]

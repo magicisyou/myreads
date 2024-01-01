@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
-  import { books_list } from "./stores.ts";
+  import { books_list, search_keyword } from "./stores.ts";
 
   export let name = "";
   export let author = "";
@@ -8,27 +8,54 @@
   export let starred = false;
 
   async function deleteBook() {
-    let result = await invoke("delete_book", {
-      book: this.parentElement.children[0].innerText,
-      author: this.parentElement.children[1].innerText,
-    });
-    if (result) books_list.set(result);
+    if (
+      await invoke("delete_book", {
+        book: this.parentElement.children[0].innerText,
+        author: this.parentElement.children[1].innerText,
+      })
+    ) {
+      if ($search_keyword == "") {
+        let result = await invoke("get_books");
+        if (result) books_list.set(result);
+      } else {
+        let result = await invoke("search_books", { keyword: $search_keyword });
+        if (result) books_list.set(result);
+      }
+    }
   }
 
   async function toggleStarred() {
-    let result = await invoke("change_starred", {
-      book: this.parentElement.children[0].innerText,
-      author: this.parentElement.children[1].innerText,
-    });
-    if (result) books_list.set(result);
+    if (
+      await invoke("change_starred", {
+        book: this.parentElement.children[0].innerText,
+        author: this.parentElement.children[1].innerText,
+      })
+    ) {
+      if ($search_keyword == "") {
+        let result = await invoke("get_books");
+        if (result) books_list.set(result);
+      } else {
+        let result = await invoke("search_books", { keyword: $search_keyword });
+        if (result) books_list.set(result);
+      }
+    }
   }
 
   async function changeReadState() {
-    let result = await invoke("change_read_state", {
-      book: this.parentElement.children[0].innerText,
-      author: this.parentElement.children[1].innerText,
-    });
-    if (result) books_list.set(result);
+    if (
+      await invoke("change_read_state", {
+        book: this.parentElement.children[0].innerText,
+        author: this.parentElement.children[1].innerText,
+      })
+    ) {
+      if ($search_keyword == "") {
+        let result = await invoke("get_books");
+        if (result) books_list.set(result);
+      } else {
+        let result = await invoke("search_books", { keyword: $search_keyword });
+        if (result) books_list.set(result);
+      }
+    }
   }
 </script>
 
