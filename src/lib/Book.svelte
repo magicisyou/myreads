@@ -108,6 +108,7 @@
     background-color: #0003;
     border: none;
     color: inherit;
+    padding: 5px;
   }
   .PartialRead {
     background-color: #d3d6d8;

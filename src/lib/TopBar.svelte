@@ -90,10 +90,11 @@
   }
   .close-search {
     position: absolute;
-    top: 10px;
+    top: 20%;
     border: none;
     background-color: transparent;
     right: 10px;
+    height: 75%;
   }
   @media (prefers-color-scheme: dark) {
     input,
