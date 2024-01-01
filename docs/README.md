@@ -10,4 +10,5 @@ This is a cross platform app built with tauri to organize reading list. Download
 
 ### Screenshot
 
-![MyReads Screenshot](/docs/screenshot.webp)
+![MyReads Screenshot dark](/docs/screenshot.webp)
+![MyReads Screenshot light](/docs/screenshot-light.webp)

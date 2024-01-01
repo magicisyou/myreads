@@ -2,6 +2,7 @@
   import { invoke } from "@tauri-apps/api/tauri";
   import Book from "./lib/Book.svelte";
   import TopBar from "./lib/TopBar.svelte";
+  import SearchIndicator from "./lib/SearchIndicator.svelte";
   import { books_list } from "./lib/stores.ts";
 
   async function get_books() {
@@ -13,6 +14,7 @@
 
 <div>
   <TopBar />
+  <SearchIndicator />
   {#each $books_list as book}
     <Book {...book} />
   {/each}

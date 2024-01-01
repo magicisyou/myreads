@@ -6,15 +6,13 @@
   let author = "";
   let keyword = "";
 
-  async function search() {
+  $: {
     search_keyword.set(keyword);
-    if (keyword == "") {
-      let result = await invoke("get_books");
-      if (result) books_list.set(result);
-    } else {
-      let result = await invoke("search_books", { keyword: keyword });
-      if (result) books_list.set(result);
-    }
+    draw();
+  }
+
+  function closeSearch() {
+    keyword = "";
   }
 
   async function add_book() {
@@ -25,16 +23,20 @@
           author: author,
         })
       ) {
-        if (keyword == "") {
-          let result = await invoke("get_books");
-          if (result) books_list.set(result);
-        } else {
-          let result = await invoke("search_books", { keyword: keyword });
-          if (result) books_list.set(result);
-        }
         name = "";
         author = "";
+        draw();
       }
+    }
+  }
+
+  async function draw() {
+    if (keyword == "") {
+      let result = await invoke("get_books");
+      if (result) books_list.set(result);
+    } else {
+      let result = await invoke("search_books", { keyword: keyword });
+      if (result) books_list.set(result);
     }
   }
 </script>
@@ -43,14 +45,16 @@
   <form on:submit|preventDefault={add_book}>
     <input type="text" bind:value={name} placeholder="book name" />
     <input type="text" bind:value={author} placeholder="author name" />
-    <button type="submit">Add</button>
+    <button class="add" type="submit">Add</button>
   </form>
-  <input
-    type="text"
-    bind:value={keyword}
-    on:input={search}
-    placeholder="Search"
-  />
+  <span class="search">
+    <input type="text" bind:value={keyword} placeholder="Search" />
+    {#if keyword != ""}
+      <button class="close-search" on:click={closeSearch}>
+        <img src="/close.svg" alt="close" />
+      </button>
+    {/if}
+  </span>
 </div>
 
 <style scoped>
@@ -66,7 +70,7 @@
     width: 100%;
     padding: 10px;
   }
-  button,
+  .add,
   input {
     border: solid #525c7c 1px;
     border-radius: 5px;
@@ -76,14 +80,24 @@
     width: max(250px, 25vw);
     background-color: #dddeef;
   }
-  button {
+  .add {
     width: 80px;
     background-color: #525c7c;
     color: #f2f2f2;
   }
+  .search {
+    position: relative;
+  }
+  .close-search {
+    position: absolute;
+    top: 10px;
+    border: none;
+    background-color: transparent;
+    right: 10px;
+  }
   @media (prefers-color-scheme: dark) {
     input,
-    button {
+    .add {
       background-color: #111;
       color: #f2f2f2;
       border: solid #666 1px;

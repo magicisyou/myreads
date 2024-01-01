@@ -14,13 +14,7 @@
         author: this.parentElement.children[1].innerText,
       })
     ) {
-      if ($search_keyword == "") {
-        let result = await invoke("get_books");
-        if (result) books_list.set(result);
-      } else {
-        let result = await invoke("search_books", { keyword: $search_keyword });
-        if (result) books_list.set(result);
-      }
+      draw();
     }
   }
 
@@ -31,13 +25,7 @@
         author: this.parentElement.children[1].innerText,
       })
     ) {
-      if ($search_keyword == "") {
-        let result = await invoke("get_books");
-        if (result) books_list.set(result);
-      } else {
-        let result = await invoke("search_books", { keyword: $search_keyword });
-        if (result) books_list.set(result);
-      }
+      draw();
     }
   }
 
@@ -48,13 +36,16 @@
         author: this.parentElement.children[1].innerText,
       })
     ) {
-      if ($search_keyword == "") {
-        let result = await invoke("get_books");
-        if (result) books_list.set(result);
-      } else {
-        let result = await invoke("search_books", { keyword: $search_keyword });
-        if (result) books_list.set(result);
-      }
+      draw();
+    }
+  }
+  async function draw() {
+    if ($search_keyword == "") {
+      let result = await invoke("get_books");
+      if (result) books_list.set(result);
+    } else {
+      let result = await invoke("search_books", { keyword: $search_keyword });
+      if (result) books_list.set(result);
     }
   }
 </script>
