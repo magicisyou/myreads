@@ -52,10 +52,10 @@ pub fn add_book(db: &Connection, book: &Book) -> Result<(), rusqlite::Error> {
         false => 0,
     };
     let read_state = match book.read_state {
-        ReadState::Read => "Read",
+        ReadState::Completed => "Completed",
         ReadState::Reading => "Reading",
-        ReadState::NotRead => "NotRead",
-        ReadState::PartialRead => "PartialRead",
+        ReadState::WishToRead => "WishToRead",
+        ReadState::NotCompleted => "NotCompleted",
     };
     let query =
         format!("INSERT INTO {TABLE_NAME} (book, author, read_state, starred) VALUES (@book, @author, @read_state, @starred)");
@@ -76,10 +76,10 @@ pub fn get_books(db: &Connection) -> Result<Vec<Book>, rusqlite::Error> {
         let author: String = row.get("author")?;
         let read_state: String = row.get("read_state")?;
         let read_state = match read_state.as_str() {
-            "Read" => ReadState::Read,
+            "Completed" => ReadState::Completed,
             "Reading" => ReadState::Reading,
-            "PartialRead" => ReadState::PartialRead,
-            _ => ReadState::NotRead,
+            "NotCompleted" => ReadState::NotCompleted,
+            _ => ReadState::WishToRead,
         };
         let starred = row.get("starred")?;
         let starred = matches!(starred, 1);
@@ -125,10 +125,10 @@ fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState
     if let Some(row) = rows.next()? {
         let read_state: String = row.get("read_state")?;
         let read_state = match read_state.as_str() {
-            "Read" => ReadState::Read,
+            "Completed" => ReadState::Completed,
             "Reading" => ReadState::Reading,
-            "PartialRead" => ReadState::PartialRead,
-            _ => ReadState::NotRead,
+            "NotCompleted" => ReadState::NotCompleted,
+            _ => ReadState::WishToRead,
         };
         return Ok(read_state);
     }
@@ -137,10 +137,10 @@ fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState
 
 pub fn change_read_state(db: &Connection, book: &str, author: &str) -> Result<(), rusqlite::Error> {
     let read_state = match get_read_state(db, book, author)? {
-        ReadState::NotRead => "Reading",
-        ReadState::Reading => "PartialRead",
-        ReadState::PartialRead => "Read",
-        ReadState::Read => "NotRead",
+        ReadState::WishToRead => "Reading",
+        ReadState::Reading => "NotCompleted",
+        ReadState::NotCompleted => "Completed",
+        ReadState::Completed => "WishToRead",
     };
     let query = format!(
         "UPDATE {TABLE_NAME} SET read_state = @read_state WHERE book = @book AND author = @author"
@@ -163,10 +163,10 @@ pub fn search(db: &Connection, keyword: &str) -> Result<Vec<Book>, rusqlite::Err
         let author: String = row.get("author")?;
         let read_state: String = row.get("read_state")?;
         let read_state = match read_state.as_str() {
-            "Read" => ReadState::Read,
+            "Completed" => ReadState::Completed,
             "Reading" => ReadState::Reading,
-            "PartialRead" => ReadState::PartialRead,
-            _ => ReadState::NotRead,
+            "NotCompleted" => ReadState::NotCompleted,
+            _ => ReadState::WishToRead,
         };
         let starred = row.get("starred")?;
         let starred = matches!(starred, 1);

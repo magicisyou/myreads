@@ -58,6 +58,14 @@
 </div>
 
 <style scoped>
+  div {
+    position: sticky;
+    top: 0;
+    background-color: #899ebd;
+    width: 100%;
+    padding: 10px;
+    z-index: 1;
+  }
   div,
   form {
     display: flex;
@@ -65,10 +73,6 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-  }
-  div {
-    width: 100%;
-    padding: 10px;
   }
   .add,
   input {
@@ -102,6 +106,9 @@
       background-color: #111;
       color: #f2f2f2;
       border: solid #666 1px;
+    }
+    div {
+      background-color: #101321;
     }
   }
 </style>

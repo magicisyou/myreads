@@ -10,10 +10,10 @@ pub struct Book {
 
 #[derive(Serialize, Deserialize)]
 pub enum ReadState {
-    Read,
-    NotRead,
+    Completed,
+    WishToRead,
     Reading,
-    PartialRead,
+    NotCompleted,
 }
 
 impl Book {

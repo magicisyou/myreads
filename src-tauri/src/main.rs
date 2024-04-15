@@ -14,7 +14,7 @@ use tauri::{AppHandle, Manager, State};
 fn add_book_to_db(app_handle: AppHandle, book: String, author: String) -> bool {
     let book = book.trim().to_string();
     let author = author.trim().to_string();
-    let new_book = Book::from(book, author, ReadState::NotRead, false);
+    let new_book = Book::from(book, author, ReadState::WishToRead, false);
     if let Ok(()) = app_handle.db(|db| database::add_book(db, &new_book)) {
         return true;
     }

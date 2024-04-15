@@ -84,6 +84,7 @@
   .book,
   .author {
     height: 75px;
+    width: 100%;
     text-align: center;
   }
   .book {
@@ -109,20 +110,21 @@
     border: none;
     color: inherit;
     padding: 5px;
+    font-size: 16px;
   }
-  .PartialRead {
+  .NotCompleted {
     background-color: #d3d6d8;
   }
   .Reading {
     background-color: #546b96;
     color: #f2f2f2;
   }
-  .Read {
-    background-color: #b08d57;
-  }
-  .NotRead {
-    background-color: #b87333;
+  .Completed {
+    background-color: #40826d;
     color: #f2f2f2;
+  }
+  .WishToRead {
+    background-color: #b08d57;
   }
 
   @media (prefers-color-scheme: dark) {
