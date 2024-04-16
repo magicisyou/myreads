@@ -4,7 +4,7 @@ use tauri::AppHandle;
 
 use crate::book::{Book, ReadState};
 
-const CURRENT_DB_VERSION: u32 = 1;
+const CURRENT_DB_VERSION: u32 = 2;
 const TABLE_NAME: &str = "books";
 
 pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlite::Error> {
@@ -30,8 +30,9 @@ pub fn upgrade_database_if_needed(
         db.pragma_update(None, "journal_mode", "WAL")?;
         let tx = db.transaction()?;
         tx.pragma_update(None, "user_version", CURRENT_DB_VERSION)?;
-        let query = format!(
-            "
+        if existing_version == 0 {
+            let query = format!(
+                "
       CREATE TABLE {TABLE_NAME} (
         book TEXT NOT NULL,
         author TEXT NOT NULL,
@@ -39,8 +40,18 @@ pub fn upgrade_database_if_needed(
         starred BOOL NOT NULL,
         PRIMARY KEY (book, author)
       );"
-        );
-        tx.execute_batch(&query)?;
+            );
+            tx.execute(&query, [])?;
+        } else {
+            let query = format!(
+                "
+              UPDATE {TABLE_NAME} SET read_state = 'Completed' WHERE read_state = 'Read';
+              UPDATE {TABLE_NAME} SET read_state = 'WishToRead' WHERE read_state = 'NotRead';
+              UPDATE {TABLE_NAME} SET read_state = 'NotCompleted' WHERE read_state = 'PartialRead';
+            "
+            );
+            tx.execute_batch(&query)?;
+        }
         tx.commit()?;
     }
     Ok(())
@@ -51,12 +62,7 @@ pub fn add_book(db: &Connection, book: &Book) -> Result<(), rusqlite::Error> {
         true => 1,
         false => 0,
     };
-    let read_state = match book.read_state {
-        ReadState::Completed => "Completed",
-        ReadState::Reading => "Reading",
-        ReadState::WishToRead => "WishToRead",
-        ReadState::NotCompleted => "NotCompleted",
-    };
+    let read_state = book.read_state.to_string();
     let query =
         format!("INSERT INTO {TABLE_NAME} (book, author, read_state, starred) VALUES (@book, @author, @read_state, @starred)");
     let mut statement = db.prepare(&query)?;
@@ -75,12 +81,7 @@ pub fn get_books(db: &Connection) -> Result<Vec<Book>, rusqlite::Error> {
         let book: String = row.get("book")?;
         let author: String = row.get("author")?;
         let read_state: String = row.get("read_state")?;
-        let read_state = match read_state.as_str() {
-            "Completed" => ReadState::Completed,
-            "Reading" => ReadState::Reading,
-            "NotCompleted" => ReadState::NotCompleted,
-            _ => ReadState::WishToRead,
-        };
+        let read_state = ReadState::from(&read_state);
         let starred = row.get("starred")?;
         let starred = matches!(starred, 1);
         books.push(Book::from(book, author, read_state, starred));
@@ -124,24 +125,14 @@ fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState
     let mut rows = statement.query(named_params! {"@book": book, "@author": author})?;
     if let Some(row) = rows.next()? {
         let read_state: String = row.get("read_state")?;
-        let read_state = match read_state.as_str() {
-            "Completed" => ReadState::Completed,
-            "Reading" => ReadState::Reading,
-            "NotCompleted" => ReadState::NotCompleted,
-            _ => ReadState::WishToRead,
-        };
+        let read_state = ReadState::from(&read_state);
         return Ok(read_state);
     }
     Err(rusqlite::Error::QueryReturnedNoRows)
 }
 
 pub fn change_read_state(db: &Connection, book: &str, author: &str) -> Result<(), rusqlite::Error> {
-    let read_state = match get_read_state(db, book, author)? {
-        ReadState::WishToRead => "Reading",
-        ReadState::Reading => "NotCompleted",
-        ReadState::NotCompleted => "Completed",
-        ReadState::Completed => "WishToRead",
-    };
+    let read_state = get_read_state(db, book, author)?.to_string();
     let query = format!(
         "UPDATE {TABLE_NAME} SET read_state = @read_state WHERE book = @book AND author = @author"
     );
@@ -162,12 +153,7 @@ pub fn search(db: &Connection, keyword: &str) -> Result<Vec<Book>, rusqlite::Err
         let book: String = row.get("book")?;
         let author: String = row.get("author")?;
         let read_state: String = row.get("read_state")?;
-        let read_state = match read_state.as_str() {
-            "Completed" => ReadState::Completed,
-            "Reading" => ReadState::Reading,
-            "NotCompleted" => ReadState::NotCompleted,
-            _ => ReadState::WishToRead,
-        };
+        let read_state = ReadState::from(&read_state);
         let starred = row.get("starred")?;
         let starred = matches!(starred, 1);
         books.push(Book::from(book, author, read_state, starred));

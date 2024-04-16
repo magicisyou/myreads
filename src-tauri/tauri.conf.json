@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "myreads",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -36,7 +36,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "MyReads",
+        "title": "My Reads",
         "width": 1000,
         "height": 700
       }

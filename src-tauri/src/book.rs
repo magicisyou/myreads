@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Serialize, Deserialize)]
 pub struct Book {
@@ -23,6 +24,28 @@ impl Book {
             author,
             read_state,
             starred,
+        }
+    }
+}
+
+impl ReadState {
+    pub fn from(state: &str) -> Self {
+        match state {
+            "Completed" => Self::Completed,
+            "Reading" => Self::Reading,
+            "NotCompleted" => Self::NotCompleted,
+            _ => Self::WishToRead,
+        }
+    }
+}
+
+impl fmt::Display for ReadState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ReadState::WishToRead => write!(f, "Reading"),
+            ReadState::Reading => write!(f, "NotCompleted"),
+            ReadState::NotCompleted => write!(f, "Completed"),
+            ReadState::Completed => write!(f, "WishToRead"),
         }
     }
 }
