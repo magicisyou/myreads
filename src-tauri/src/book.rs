@@ -42,10 +42,10 @@ impl ReadState {
 impl fmt::Display for ReadState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ReadState::WishToRead => write!(f, "Reading"),
-            ReadState::Reading => write!(f, "NotCompleted"),
-            ReadState::NotCompleted => write!(f, "Completed"),
-            ReadState::Completed => write!(f, "WishToRead"),
+            ReadState::WishToRead => write!(f, "WishToRead"),
+            ReadState::Reading => write!(f, "Reading"),
+            ReadState::NotCompleted => write!(f, "NotCompleted"),
+            ReadState::Completed => write!(f, "Completed"),
         }
     }
 }
