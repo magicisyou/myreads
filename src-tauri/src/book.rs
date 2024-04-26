@@ -37,6 +37,23 @@ impl ReadState {
             _ => Self::WishToRead,
         }
     }
+
+    pub fn next(&mut self) {
+        match self {
+            ReadState::WishToRead => {
+                *self = ReadState::Reading;
+            }
+            ReadState::Reading => {
+                *self = ReadState::NotCompleted;
+            }
+            ReadState::NotCompleted => {
+                *self = ReadState::Completed;
+            }
+            ReadState::Completed => {
+                *self = ReadState::WishToRead;
+            }
+        }
+    }
 }
 
 impl fmt::Display for ReadState {

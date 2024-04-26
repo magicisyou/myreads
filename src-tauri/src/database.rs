@@ -118,21 +118,26 @@ pub fn toggle_starred(db: &Connection, book: &str, author: &str) -> Result<(), r
     Ok(())
 }
 
-fn get_read_state(db: &Connection, book: &str, author: &str) -> Result<ReadState, rusqlite::Error> {
+fn get_next_read_state(
+    db: &Connection,
+    book: &str,
+    author: &str,
+) -> Result<ReadState, rusqlite::Error> {
     let query =
         format!("SELECT read_state FROM {TABLE_NAME} WHERE book = @book AND author = @author");
     let mut statement = db.prepare(&query)?;
     let mut rows = statement.query(named_params! {"@book": book, "@author": author})?;
     if let Some(row) = rows.next()? {
         let read_state: String = row.get("read_state")?;
-        let read_state = ReadState::from(&read_state);
+        let mut read_state = ReadState::from(&read_state);
+        read_state.next();
         return Ok(read_state);
     }
     Err(rusqlite::Error::QueryReturnedNoRows)
 }
 
 pub fn change_read_state(db: &Connection, book: &str, author: &str) -> Result<(), rusqlite::Error> {
-    let read_state = get_read_state(db, book, author)?.to_string();
+    let read_state = get_next_read_state(db, book, author)?.to_string();
     let query = format!(
         "UPDATE {TABLE_NAME} SET read_state = @read_state WHERE book = @book AND author = @author"
     );
